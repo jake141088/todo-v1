@@ -1,0 +1,132 @@
+version: "3.7"
+services:
+  web:
+    build:
+      args:
+        user: user
+        uid: 1000
+      context: ./
+      dockerfile: Dockerfile
+    image: web
+    container_name: sistema-login-web
+    restart: unless-stopped
+    working_dir: /var/www/
+    volumes:
+      - ./:/var/www
+      - ./logs:/var/www/storage/logs
+    networks:
+      - sistema-login
+
+  nginx:
+    image: nginx:alpine
+    container_name: sistema-login-nginx
+    restart: unless-stopped
+    ports:
+      - 8086:80
+    volumes:
+      - ./:/var/www
+      - ./docker-compose/nginx:/etc/nginx/conf.d/
+    networks:
+      - sistema-login
+
+  db:
+    image: mysql:latest
+    container_name: sistema-login-db
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: ${DB_DATABASE}
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
+      MYSQL_PASSWORD: ${DB_PASSWORD}
+      MYSQL_USER: ${DB_USERNAME}
+      SERVICE_TAGS: dev
+      SERVICE_NAME: mysql
+    volumes:
+      - ./docker-compose/mysql:/docker-entrypoint-initdb.d 
+    ports:
+      - 3307:3306 
+    networks:
+      - sistema-login
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    container_name: phpmyadmin
+    links:
+      - db
+    environment:
+      PMA_HOST: db
+      PMA_PORT: 3307
+      PMA_ARBITRARY: 1
+    restart: always
+    ports:
+      - 8082:80
+    networks:
+      - sistema-login
+  redis:
+    image: 'redis:latest'
+    container_name: 'sistema-login-redis'
+    restart: 'always'
+    environment:
+        REDIS_HOST : cache
+        REDIS_PORT : '${REDIS_PORT}'
+        REDIS_PASSWORD : '${REDIS_PASSWORD}'
+    command: 'redis-server --save 20 1 --loglevel warning --requirepass ''${REDIS_PASSWORD}'''
+    volumes:
+      - './:/var/www'
+    networks:
+      - sistema-login
+
+  queue:
+    build:
+      args:
+          user: jaciel
+          uid: 1000
+      context: ./
+      dockerfile: Dockerfile
+    command: 'php artisan queue:work'
+    container_name: sistema-login-queue
+    restart: unless-stopped
+    volumes:
+      - './:/var/www'
+    depends_on:
+      - redis
+    networks:
+      - sistema-login
+
+  schedule:
+    build:
+      args:
+          user: jaciel
+          uid: 1000
+      context: ./
+      dockerfile: Dockerfile
+    command: 'php artisan schedule:work'
+    container_name: sistema-login-schedule
+    restart: unless-stopped
+    volumes:
+      - './:/var/www'
+    depends_on:
+      - redis
+      - queue
+    networks:
+      - sistema-login
+
+  echo:
+    build:
+      args:
+          user: jaciel
+          uid: 1000
+      context: ./
+    volumes:
+      - ./:/var/www
+      - './laravel-echo-server.json:/app/laravel-echo-server.json'
+    ports:
+      - '${LARAVEL_ECHO_SERVER_PORT}:6001'
+    restart: unless-stopped  
+    command: 'laravel-echo-server start --force'  
+    depends_on:
+      - redis
+    networks:
+      - sistema-login            
+
+networks:
+  sistema-login:
+    driver: bridge
