@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\TarefasController;
 
 /*
 |--------------------------------------------------------------------------
@@ -14,11 +15,11 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::get('/', function () {
-    return view('welcome');
+    return view('home.index');
 });
 
-Route::get('/dashboard', function () {
-    return view('dashboard');
-})->middleware(['auth'])->name('dashboard');
+Route::group(array('prefix' => 'api'), function() {
+    Route::resource('tarefas', TarefasController::class);
+});
 
 require __DIR__.'/auth.php';
