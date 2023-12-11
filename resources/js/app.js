@@ -1,7 +1,17 @@
-import './bootstrap';
+require('./bootstrap');
+import App from './App.vue'
 
-import Alpine from 'alpinejs';
+import vuetify from './plugins/vuetify';
 
-window.Alpine = Alpine;
+import {createApp} from 'vue'
 
-Alpine.start();
+const app = createApp(App)
+
+app.use(vuetify)
+
+app.mount("#app")
+
+
+
+
+

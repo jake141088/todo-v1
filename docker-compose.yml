@@ -8,18 +8,18 @@ services:
       context: ./
       dockerfile: Dockerfile
     image: web
-    container_name: sistema-login-web
+    container_name: lista-tarefas-web
     restart: unless-stopped
     working_dir: /var/www/
     volumes:
       - ./:/var/www
       - ./logs:/var/www/storage/logs
     networks:
-      - sistema-login
+      - lista-tarefas
 
   nginx:
     image: nginx:alpine
-    container_name: sistema-login-nginx
+    container_name: lista-tarefas-nginx
     restart: unless-stopped
     ports:
       - 8086:80
@@ -27,11 +27,11 @@ services:
       - ./:/var/www
       - ./docker-compose/nginx:/etc/nginx/conf.d/
     networks:
-      - sistema-login
+      - lista-tarefas
 
   db:
     image: mysql:latest
-    container_name: sistema-login-db
+    container_name: lista-tarefas-db
     restart: unless-stopped
     environment:
       MYSQL_DATABASE: ${DB_DATABASE}
@@ -45,24 +45,24 @@ services:
     ports:
       - 3307:3306 
     networks:
-      - sistema-login
+      - lista-tarefas
   phpmyadmin:
     image: phpmyadmin/phpmyadmin
-    container_name: phpmyadmin
+    container_name: phpmyadmin5
     links:
       - db
     environment:
       PMA_HOST: db
-      PMA_PORT: 3307
+      PMA_PORT: 3306
       PMA_ARBITRARY: 1
     restart: always
     ports:
       - 8082:80
     networks:
-      - sistema-login
+      - lista-tarefas
   redis:
     image: 'redis:latest'
-    container_name: 'sistema-login-redis'
+    container_name: 'lista-tarefas-redis'
     restart: 'always'
     environment:
         REDIS_HOST : cache
@@ -72,7 +72,7 @@ services:
     volumes:
       - './:/var/www'
     networks:
-      - sistema-login
+      - lista-tarefas
 
   queue:
     build:
@@ -82,14 +82,14 @@ services:
       context: ./
       dockerfile: Dockerfile
     command: 'php artisan queue:work'
-    container_name: sistema-login-queue
+    container_name: lista-tarefas-queue
     restart: unless-stopped
     volumes:
       - './:/var/www'
     depends_on:
       - redis
     networks:
-      - sistema-login
+      - lista-tarefas
 
   schedule:
     build:
@@ -99,7 +99,7 @@ services:
       context: ./
       dockerfile: Dockerfile
     command: 'php artisan schedule:work'
-    container_name: sistema-login-schedule
+    container_name: lista-tarefas-schedule
     restart: unless-stopped
     volumes:
       - './:/var/www'
@@ -107,7 +107,7 @@ services:
       - redis
       - queue
     networks:
-      - sistema-login
+      - lista-tarefas
 
   echo:
     build:
@@ -125,8 +125,8 @@ services:
     depends_on:
       - redis
     networks:
-      - sistema-login            
+      - lista-tarefas            
 
 networks:
-  sistema-login:
+  lista-tarefas:
     driver: bridge
