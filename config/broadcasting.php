@@ -61,4 +61,12 @@ return [
 
     ],
 
+    'options' => [
+        'cluster' => env('PUSHER_APP_CLUSTER'),
+        'useTLS' => true,
+        'host' => env('LARAVEL_ECHO_SERVER_HOST', 'http://localhost'),
+        'port' => env('LARAVEL_ECHO_SERVER_PORT', '6001'),
+    ],
+    
+
 ];

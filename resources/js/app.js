@@ -1,5 +1,7 @@
 require('./bootstrap');
-import App from './App.vue'
+import App from './App.vue';
+
+import "./axios"
 
 import vuetify from './plugins/vuetify';
 

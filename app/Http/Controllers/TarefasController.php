@@ -37,15 +37,21 @@ class TarefasController extends Controller
      */
     public function store(Request $request)
     {
+        $request->validate([
+            'texto' => 'required',
+            'autor' => 'required',
+            'status' => 'required',
+        ]);
+    
         $tarefa = new ListaDeTarefas();
         $tarefa->texto = $request->input('texto');
         $tarefa->autor = $request->input('autor');
         $tarefa->status = $request->input('status');
-        if($tarefa->save()){
-            return Response("1",201);
-        }
-        else{
-            return Response("0",304);
+    
+        if ($tarefa->save()) {
+            return response()->json(['success' => true, 'tarefa' => $tarefa], 201);
+        } else {
+            return response()->json(['success' => false], 304);
         }
     }
 
@@ -85,15 +91,28 @@ class TarefasController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request, $id)
-    {
+    { 
         $tarefa = ListaDeTarefas::find($id);
-        $tarefa->status = $request->input('status');
-        if($tarefa->save()){
-            return Response()->json($tarefa, 201);
-        }
-        else{
-            return Response("0",304);
-        }
+
+    if (!$tarefa) {
+        return response()->json(['success' => false, 'error' => 'Tarefa não encontrada'], 404);
+    }
+
+    $request->validate([
+        'texto' => 'required',
+        'autor' => 'required',
+        'status' => 'required',
+    ]);
+
+    $tarefa->texto = $request->input('texto');
+    $tarefa->autor = $request->input('autor');
+    $tarefa->status = $request->input('status');
+
+    if ($tarefa->save()) {
+        return response()->json(['success' => true, 'tarefa' => $tarefa], 201);
+    } else {
+        return response()->json(['success' => false], 304);
+    }
     }
 
     /**
