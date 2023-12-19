@@ -23,6 +23,27 @@
         padding-right: 0 !important;
         padding-left: 0 !important;
     }
+
+    .remover-btn {
+        background-color: #dc3545 !important; /* Vermelho do Bootstrap */
+        border-color: #dc3545; /* Também pode ser útil ajustar a cor da borda, se necessário */
+    }
+
+    .remover-btn:hover {
+        background-color: #bd2130 !important; /* Cor mais escura quando hover, se desejar */
+        border-color: #bd2130 !important;
+    }
+
+    .editar-btn {
+        background-color: #3CB371 !important;
+        border-color: #3CB371;
+    }
+
+    .editar-btn:hover {
+        background-color: #218838 !important; /* Cor mais escura quando hover, se desejar */
+        border-color: #218838 !important;
+    }
+
 </style>
 @endpush
 
